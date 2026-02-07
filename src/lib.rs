@@ -2,6 +2,7 @@ use std::error::Error;
 use std::fs;
 
 use clap::Parser;
+use regex::Regex;
 
 #[derive(Parser)]
 #[command(version, about = "Teeny-tiny grep implementation in Rust")]
@@ -36,7 +37,8 @@ pub struct Config {
 pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
     let content = fs::read_to_string(config.filepath)?;
 
-    let results = search(&config.pattern, &content);
+    let re = Regex::new(&config.pattern)?;
+    let results = search(&re, &content);
     for line in results {
         println!("{}", line);
     }
@@ -44,10 +46,10 @@ pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
-fn search<'a>(pattern: &str, content: &'a str) -> Vec<&'a str> {
+fn search<'a>(pattern: &Regex, content: &'a str) -> Vec<&'a str> {
     let mut results = Vec::new();
     for line in content.lines() {
-        if line.contains(pattern) {
+        if pattern.is_match(line) {
             results.push(line);
         }
     }

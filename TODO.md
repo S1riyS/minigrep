@@ -3,7 +3,7 @@
 ## Core
 
 - [ ] Support case insensetive search (`-i`)
-- [ ] Support serach via regexp
+- [x] Support serach via regexp
 - [ ] Support display of line number (`-n`)
 
 ## Additional
