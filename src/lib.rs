@@ -1,21 +1,36 @@
-use std::{error::Error, fs};
+use std::error::Error;
+use std::fs;
 
+use clap::Parser;
+
+#[derive(Parser)]
+#[command(version, about = "Teeny-tiny grep implementation in Rust")]
 pub struct Config {
-    pub pattern: String,
-    pub filepath: String,
-}
+    /// Pattern to search for
+    pattern: String,
 
-impl Config {
-    pub fn new(args: &[String]) -> Result<Config, &str> {
-        if args.len() < 3 {
-            return Err("Not enough argunets");
-        }
+    /// Path to file
+    filepath: String,
 
-        let pattern = args[1].clone();
-        let filepath = args[2].clone();
+    /// Perform case insensitive matching
+    #[arg(short, long, default_value_t = false)]
+    ignore_case: bool,
 
-        Ok(Config { pattern, filepath })
-    }
+    /// Display line number
+    #[arg(short, long, default_value_t = false)]
+    display_line_number: bool,
+
+    /// Print num lines of trailing context after each match
+    #[arg(short, long)]
+    after_context: Option<u32>,
+
+    /// Print num lines of leading context before each match
+    #[arg(short, long)]
+    before_context: Option<u32>,
+
+    /// Print num lines of leading and trailing context surrounding each match
+    #[arg(short, long)]
+    context: Option<u32>,
 }
 
 pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
@@ -29,7 +44,7 @@ pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
-pub fn search<'a>(pattern: &str, content: &'a str) -> Vec<&'a str> {
+fn search<'a>(pattern: &str, content: &'a str) -> Vec<&'a str> {
     let mut results = Vec::new();
     for line in content.lines() {
         if line.contains(pattern) {
